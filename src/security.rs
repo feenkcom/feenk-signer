@@ -89,7 +89,7 @@ impl Security {
             .arg("user")
             .stdout(Stdio::piped())
             .output() {
-            Ok(x) => str::from_utf8(x.stdout.as_slice()).unwrap().to_string().replace("\"", "").split_whitespace().nth(0).unwrap().to_string(),
+            Ok(x) => str::from_utf8(x.stdout.as_slice()).unwrap().to_string().replace("\"", "").split_whitespace().nth(0).unwrap_or(&"".to_string()).to_string(),
             Err(_) => panic!("Could not list keychains"),
         };
         output
