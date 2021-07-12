@@ -40,7 +40,8 @@ fn main() {
 
     println!("find_identity returns: {}", security.find_identity());
 
-    // security.set_key_partition_list();
+    security.set_key_partition_list();
+
     // let mut codesign = Codesign::new(options.singing_identity, options.entitlements);
     // codesign.sign(options.app);
     //security.delete_keychain();

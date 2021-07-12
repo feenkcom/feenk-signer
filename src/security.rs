@@ -197,30 +197,15 @@ impl Security {
 
     //security set-key-partition-list -S apple-tool:,apple: -s -k $MY_KEYCHAIN_PASSWORD -D "$CERT_IDENTITY" -t private $MY_KEYCHAIN # Enable codesigning from a non user interactive shell
     pub fn set_key_partition_list(&mut self) {
-        let keychain = Self::keychain_file_path();
+        let mut command = command(format!(
+            "security set-key-partition-list -S apple-tool:,apple: -s -k {} -D {} -t private {}",
+            Self::keychain_password(),
+            &self.find_identity(),
+            Self::keychain_file_path().display(),
+        ));
+        println!("{:?}", &command);
 
-        if !Command::new("security")
-            .arg("set-key-partition-list")
-            .arg("-S")
-            .arg("apple-tool:,apple:")
-            .arg("-s")
-            .arg("-k")
-            .arg(
-                self.certificate_password
-                    .as_ref()
-                    .unwrap_or(&"".to_string()),
-            )
-            .arg("-D")
-            .arg(&self.find_identity())
-            .arg("-t")
-            .arg("private")
-            .arg(&keychain)
-            // .arg("-P")
-            // .arg("")
-            .status()
-            .unwrap()
-            .success()
-        {
+        if !command.status().unwrap().success() {
             panic!("Could not set key partition list");
         }
     }
