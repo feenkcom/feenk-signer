@@ -40,7 +40,7 @@ impl Codesign {
             .unwrap()
             .success()
         {
-            panic!("Could add temporary keychain");
+            panic!("Could not codesign");
         }
     }
 }
