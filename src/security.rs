@@ -3,7 +3,7 @@ use std::process::{Command, Stdio, Output};
 use std::str;
 
 pub type Certificate = PathBuf;
-pub type CertificatePassword = String;
+pub type CertificatePassword = Option<String>;
 pub type Keychain = PathBuf;
 pub type KeychainPassword = String;
 
@@ -199,7 +199,7 @@ impl Security {
             .arg("apple-tool:,apple:")
             .arg("-s")
             .arg("-k")
-            .arg(&self.certificate_password)
+            .arg(self.certificate_password.as_ref().unwrap_or(&"".to_string()))
             .arg("-D")
             .arg(&self.find_identity())
             .arg("-t")

@@ -11,7 +11,7 @@ pub struct SignOptions {
 
     /// Certificate password
     #[clap(long, env = "CERT_PASSWORD", hide_env_values = true)]
-    pub(crate) password: String,
+    pub(crate) password: Option<String>,
 
     /// Signing identity
     #[clap(long, env = "SIGNING_IDENTITY")]
