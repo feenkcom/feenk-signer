@@ -155,7 +155,10 @@ impl Security {
             "import {} -k {} -P '{}' -T /usr/bin/codesign",
             &self.certificate.display(),
             Self::keychain_file_path().display(),
-            &self.certificate_password.unwrap_or("".to_string())
+            &self
+                .certificate_password
+                .as_ref()
+                .unwrap_or(&"".to_string())
         ));
         println!("{:?}", &command);
 
