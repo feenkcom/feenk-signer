@@ -155,7 +155,7 @@ impl Security {
         let keychain = Self::keychain_file_path();
 
         assert!(keychain.exists(), "Keychain file must exist {}", &keychain.display());
-        assert!(&self.certificate.exists(), "Keychain file must exist {}", &self.certificate.display());
+        assert!(&self.certificate.exists(), "Certificate file must exist {}", &self.certificate.display());
 
         if !Command::new("security")
             .arg("import")
