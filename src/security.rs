@@ -84,12 +84,16 @@ impl Security {
         println!("{:?}", &command);
 
         let output = match command.output() {
-            Ok(x) => String::from_utf8_lossy(&x.stdout)
-                .replace("\"", "")
-                .split_whitespace()
-                .nth(0)
-                .unwrap_or("")
-                .to_string(),
+            Ok(x) => {
+                let output = String::from_utf8_lossy(&x.stdout);
+                println!("output = {}", &output);
+                output
+                    .replace("\"", "")
+                    .split_whitespace()
+                    .nth(0)
+                    .unwrap_or("")
+                    .to_string()
+            },
             Err(_) => panic!("Could not list keychains"),
         };
         output
