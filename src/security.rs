@@ -151,21 +151,17 @@ impl Security {
             &self.certificate.display()
         );
 
-        if !Command::new("security")
-            .arg("import")
-            .arg(&self.certificate)
-            .arg("-k")
-            .arg(&keychain)
-            .arg("-T")
-            .arg("/usr/bin/codesign")
-            .status()
-            .unwrap()
-            .success()
-        {
+        let mut command = command(format!(
+            "import {} -k {} -P '{}' -T /usr/bin/codesign",
+            &self.certificate.display(),
+            Self::keychain_file_path().display(),
+            &self.certificate_password.unwrap_or("".to_string())
+        ));
+        println!("{:?}", &command);
+
+        if !command.status().unwrap().success() {
             panic!("Could not import the certificate");
         }
-
-        self.keychain = Some(keychain)
     }
 
     //security find-identity -v -p codesigning "$MY_KEYCHAIN" | head -1 | grep '"' | sed -e 's/[^"]*"//' -e 's/".*//'

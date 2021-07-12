@@ -36,8 +36,8 @@ fn main() {
     security.add_keychain_to_user_domain();
     security.set_keychain_settings();
     security.unlock_keychain();
+    security.import_keychain();
 
-    // security.import_keychain();
     // security.set_key_partition_list();
     // let mut codesign = Codesign::new(options.singing_identity, options.entitlements);
     // codesign.sign(options.app);
