@@ -1,14 +1,13 @@
 extern crate base64;
 extern crate clap;
 extern crate execute;
+extern crate rand;
 
 mod codesign;
 mod options;
 mod security;
 
 use std::fs;
-use std::process::Command;
-use std::{env, panic};
 
 use crate::options::SignOptions;
 
@@ -17,8 +16,6 @@ use clap::Clap;
 use std::path::Path;
 
 use crate::codesign::Codesign;
-use std::cell::RefCell;
-use std::rc::Rc;
 
 fn main() {
     let options: SignOptions = SignOptions::parse();
@@ -27,7 +24,7 @@ fn main() {
     let certificate = Path::new("decoded.p12").to_path_buf();
     fs::write(&certificate, decoded_cert).expect("Could not export decoded certificate");
 
-    let mut security = Security::new(&certificate, options.password);
+    let mut security = Security::new(&certificate, options.password.clone());
 
     security.delete_keychain();
     security.create_keychain();
@@ -39,8 +36,10 @@ fn main() {
 
     security.set_key_partition_list();
 
-    let mut codesign = Codesign::new(options.singing_identity, options.entitlements);
-    codesign.sign(options.artefact.as_path());
+    options.with_signing_identity_and_entitlements(|signing_identity, entitlements| {
+        let codesign = Codesign::new(signing_identity, entitlements);
+        codesign.sign(options.artefact.as_path());
+    });
 
     security.delete_keychain();
 }

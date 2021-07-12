@@ -1,6 +1,5 @@
-use execute::{command, Execute};
+use execute::command;
 use std::path::{Path, PathBuf};
-use std::process::{Command, Output, Stdio};
 
 pub struct Codesign {
     signing_identity: String,
@@ -15,7 +14,7 @@ impl Codesign {
         }
     }
 
-    pub fn sign(&mut self, file: &Path) {
+    pub fn sign(&self, file: &Path) {
         let mut command = command(format!(
             "codesign --entitlements {}  --force -v --options=runtime  --deep --timestamp --file-list - -s '{}' {}",
             &self.entitlements.display(),

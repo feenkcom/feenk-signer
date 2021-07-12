@@ -1,13 +1,10 @@
-use execute::{command, Execute};
-use std::panic::UnwindSafe;
+use execute::command;
 use std::path::PathBuf;
-use std::process::{Command, Output, Stdio};
 use std::str;
 
 pub type Certificate = PathBuf;
 pub type CertificatePassword = Option<String>;
 pub type Keychain = PathBuf;
-pub type KeychainPassword = String;
 
 pub const KEYCHAIN_NAME: &str = "MyNewKeychain.keychain";
 const KEYCHAIN_PASSWORD: &str = "temporaryPassword";
