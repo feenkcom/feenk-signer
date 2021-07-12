@@ -1,9 +1,10 @@
 extern crate base64;
 extern crate clap;
+extern crate execute;
 
+mod codesign;
 mod options;
 mod security;
-mod codesign;
 
 use std::env;
 use std::fs;
@@ -17,7 +18,6 @@ use std::path::Path;
 
 use crate::codesign::Codesign;
 
-
 fn main() {
     let options: SignOptions = SignOptions::parse();
 
@@ -30,13 +30,16 @@ fn main() {
     let mut security = Security::new(&certificate, options.password);
     security.delete_keychain();
     security.create_keychain();
-    security.add_keychain_to_user_domain();
-    security.set_keychain_settings();
+
     println!("List_keychains returns: {}", security.list_keychains());
-    security.unlock_keychain();
-    security.import_keychain();
-    security.set_key_partition_list();
-    let mut codesign = Codesign::new(options.singing_identity, options.entitlements);
-    codesign.sign(options.app);
+
+    security.add_keychain_to_user_domain();
+    // security.set_keychain_settings();
+    // println!("List_keychains returns: {}", security.list_keychains());
+    // security.unlock_keychain();
+    // security.import_keychain();
+    // security.set_key_partition_list();
+    // let mut codesign = Codesign::new(options.singing_identity, options.entitlements);
+    // codesign.sign(options.app);
     security.delete_keychain();
 }

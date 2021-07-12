@@ -1,5 +1,6 @@
+use execute::{command, Execute};
 use std::path::PathBuf;
-use std::process::{Command, Stdio, Output};
+use std::process::{Command, Output, Stdio};
 use std::str;
 
 pub type Certificate = PathBuf;
@@ -49,14 +50,11 @@ impl Security {
     /// Ensure that the temporary keychain file is deleted
     pub fn delete_keychain(&mut self) {
         if let Some(ref keychain) = self.keychain {
-            println!("deleting keychain {}", keychain.display().to_string());
-            if !Command::new("security")
-                .arg("delete-keychain")
-                .arg(keychain)
-                .status()
-                .unwrap()
-                .success()
-            {
+            let mut command = command(format!("security delete-keychain {}", keychain.display()));
+
+            println!("{:?}", &command);
+
+            if !command.status().unwrap().success() {
                 panic!("Could not delete a .keychain file");
             }
 
@@ -67,15 +65,14 @@ impl Security {
     pub fn create_keychain(&mut self) {
         let keychain = Self::keychain_file_path();
 
-        if !Command::new("security")
-            .arg("create-keychain")
-            .arg("-p")
-            .arg(Self::keychain_password())
-            .arg(&keychain)
-            .status()
-            .unwrap()
-            .success()
-        {
+        let mut command = command(format!(
+            "security create-keychain -p {} {}",
+            Self::keychain_password(),
+            &keychain.display()
+        ));
+        println!("{:?}", &command);
+
+        if !command.status().unwrap().success() {
             panic!("Could not create the keychain");
         }
 
@@ -83,37 +80,32 @@ impl Security {
     }
     //security list-keychains -d user
     pub fn list_keychains(&mut self) -> String {
-        let keychain = Self::keychain_file_path();
-        let output= match Command::new("security")
-            .arg("list-keychains")
-            .arg("-d")
-            .arg("user")
-            .stdout(Stdio::piped())
-            .output() {
-            Ok(x) => str::from_utf8(x.stdout.as_slice()).unwrap().to_string().replace("\"", "").split_whitespace().nth(0).unwrap_or(&"".to_string()).to_string(),
+        let mut command = command("security list-keychains -d user");
+        println!("{:?}", &command);
+
+        let output = match command.output() {
+            Ok(x) => String::from_utf8_lossy(&x.stdout)
+                .replace("\"", "")
+                .split_whitespace()
+                .nth(0)
+                .unwrap_or("")
+                .to_string(),
             Err(_) => panic!("Could not list keychains"),
         };
         output
     }
     //security list-keychains -d user -s "$MY_KEYCHAIN" $(security list-keychains -d user | sed s/\"//g) # Append temp keychain to the user domain
     pub fn add_keychain_to_user_domain(&mut self) {
-        let keychain = Self::keychain_file_path();
+        let mut command = command(format!(
+            "security list-keychains -d user -s {} {}",
+            Self::keychain_file_path().display(),
+            self.list_keychains()
+        ));
+        println!("{:?}", &command);
 
-        if !Command::new("security")
-            .arg("list-keychains")
-            .arg("-d")
-            .arg("user")
-            .arg("-s")
-            .arg(&keychain)
-            .arg(self.list_keychains())
-            .status()
-            .unwrap()
-            .success()
-        {
+        if !command.status().unwrap().success() {
             panic!("Could add temporary keychain");
         }
-
-        self.keychain = Some(keychain)
     }
 
     //security set-keychain-settings "$MY_KEYCHAIN" # Remove relock timeout
@@ -155,8 +147,16 @@ impl Security {
     pub fn import_keychain(&mut self) {
         let keychain = Self::keychain_file_path();
 
-        assert!(keychain.exists(), "Keychain file must exist {}", &keychain.display());
-        assert!(&self.certificate.exists(), "Certificate file must exist {}", &self.certificate.display());
+        assert!(
+            keychain.exists(),
+            "Keychain file must exist {}",
+            &keychain.display()
+        );
+        assert!(
+            &self.certificate.exists(),
+            "Certificate file must exist {}",
+            &self.certificate.display()
+        );
 
         if !Command::new("security")
             .arg("import")
@@ -178,15 +178,26 @@ impl Security {
     //security find-identity -v -p codesigning "$MY_KEYCHAIN" | head -1 | grep '"' | sed -e 's/[^"]*"//' -e 's/".*//'
     pub fn find_identity(&mut self) -> String {
         let keychain = Self::keychain_file_path();
-        let output= match Command::new("security")
+        let output = match Command::new("security")
             .arg("find-identity")
             .arg("-v")
             .arg("-p")
             .arg("codesigning")
             .arg(&keychain)
             .stdout(Stdio::piped())
-            .output() {
-            Ok(x) => str::from_utf8(x.stdout.as_slice()).unwrap().to_string().lines().next().unwrap().to_string().split_whitespace().nth(1).unwrap().to_string(),
+            .output()
+        {
+            Ok(x) => str::from_utf8(x.stdout.as_slice())
+                .unwrap()
+                .to_string()
+                .lines()
+                .next()
+                .unwrap()
+                .to_string()
+                .split_whitespace()
+                .nth(1)
+                .unwrap()
+                .to_string(),
             Err(_) => panic!("Could find identity"),
         };
         output
@@ -202,7 +213,11 @@ impl Security {
             .arg("apple-tool:,apple:")
             .arg("-s")
             .arg("-k")
-            .arg(self.certificate_password.as_ref().unwrap_or(&"".to_string()))
+            .arg(
+                self.certificate_password
+                    .as_ref()
+                    .unwrap_or(&"".to_string()),
+            )
             .arg("-D")
             .arg(&self.find_identity())
             .arg("-t")

@@ -1,26 +1,23 @@
-
-use std::process::{Command, Stdio, Output};
 use std::path::PathBuf;
+use std::process::{Command, Output, Stdio};
 
 pub struct Codesign {
     signing_identity: String,
-    entitlements: String
+    entitlements: String,
 }
 pub const KEYCHAIN_NAME: &str = "MyNewKeychain.keychain";
 impl Codesign {
-    pub fn new(
-        signing_identity: impl Into<String>,
-        entitlements: impl Into<String>) -> Codesign {
+    pub fn new(signing_identity: impl Into<String>, entitlements: impl Into<String>) -> Codesign {
         Self {
             signing_identity: signing_identity.into(),
-            entitlements: entitlements.into()
+            entitlements: entitlements.into(),
         }
     }
     fn keychain_file_path() -> PathBuf {
         std::env::current_dir().unwrap().join(KEYCHAIN_NAME)
     }
 
-    pub fn sign(&mut self, file_path:String) {
+    pub fn sign(&mut self, file_path: String) {
         let keychain = Self::keychain_file_path();
 
         if !Command::new("codesign")

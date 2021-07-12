@@ -23,6 +23,5 @@ pub struct SignOptions {
 
     ///  File path to .entitlements file
     #[clap(long)]
-    pub(crate) entitlements: String
-
+    pub(crate) entitlements: String,
 }
