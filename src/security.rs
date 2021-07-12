@@ -154,6 +154,9 @@ impl Security {
     pub fn import_keychain(&mut self) {
         let keychain = Self::keychain_file_path();
 
+        assert!(keychain.exists(), "Keychain file must exist {}", &keychain.display());
+        assert!(&self.certificate.exists(), "Keychain file must exist {}", &self.certificate.display());
+
         if !Command::new("security")
             .arg("import")
             .arg(&self.certificate)
