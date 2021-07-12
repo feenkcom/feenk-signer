@@ -93,7 +93,7 @@ impl Security {
                     .nth(0)
                     .unwrap_or("")
                     .to_string()
-            },
+            }
             Err(_) => panic!("Could not list keychains"),
         };
         output
@@ -114,38 +114,27 @@ impl Security {
 
     //security set-keychain-settings "$MY_KEYCHAIN" # Remove relock timeout
     pub fn set_keychain_settings(&mut self) {
-        let keychain = Self::keychain_file_path();
-
-        if !Command::new("security")
-            .arg("set-keychain-settings")
-            .arg(&keychain)
-            .status()
-            .unwrap()
-            .success()
-        {
+        let mut command = command(format!(
+            "security set-keychain-settings {}",
+            Self::keychain_file_path().display()
+        ));
+        println!("{:?}", &command);
+        if !command.status().unwrap().success() {
             panic!("Could not set keychain settings");
         }
-
-        self.keychain = Some(keychain)
     }
 
     //security unlock-keychain -p "$MY_KEYCHAIN_PASSWORD" "$MY_KEYCHAIN" # Unlock keychain
     pub fn unlock_keychain(&mut self) {
-        let keychain = Self::keychain_file_path();
-
-        if !Command::new("security")
-            .arg("unlock-keychain")
-            .arg("-p")
-            .arg(Self::keychain_password())
-            .arg(&keychain)
-            .status()
-            .unwrap()
-            .success()
-        {
+        let mut command = command(format!(
+            "security unlock-keychain {} {}",
+            Self::keychain_password(),
+            Self::keychain_file_path().display(),
+        ));
+        println!("{:?}", &command);
+        if !command.status().unwrap().success() {
             panic!("Could not unlock the keychain");
         }
-
-        self.keychain = Some(keychain)
     }
     //security import $CERT -k "$MY_KEYCHAIN" -P "$CERT_PASSWORD" -T "/usr/bin/codesign" # Add certificate to keychain
     pub fn import_keychain(&mut self) {
