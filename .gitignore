@@ -12,3 +12,6 @@ Cargo.lock
 .idea
 decoded.p12
 .flA16DAC76
+*.iml
+*.keychain
+Product.entitlements

@@ -38,5 +38,4 @@ fn main() {
 
     let mut codesign = Codesign::new(options.singing_identity, options.entitlements);
     codesign.sign(options.app);
-
 }
