@@ -73,7 +73,7 @@ pipeline {
                 TARGET = "${MACOS_M1_TARGET}"
                 CERT = credentials('devcertificate')
                 APPLEPASSWORD = credentials('notarizepassword')
-                CERT_PASSWORD=""
+                CERT_PASSWORD=''
             }
             when {
                 expression {
