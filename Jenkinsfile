@@ -88,17 +88,15 @@ pipeline {
 
 
                 sh """
-                CERT_PASSWORD=""
+                export CERT_PASSWORD=""
                 cargo run --bin feenk-signer -- --app ${TOOL_NAME}-${MACOS_INTEL_TARGET} \
                     --singing-identity "Developer ID Application: feenk gmbh (77664ZXL29)" \
-                    --password "" \
                     --entitlements resources/Product.entitlements"""
 
                 sh """
-                CERT_PASSWORD=""
+                export CERT_PASSWORD=""
                 cargo run --bin feenk-signer -- --app ${TOOL_NAME}-${MACOS_M1_TARGET} \
                     --singing-identity "Developer ID Application: feenk gmbh (77664ZXL29)" \
-                    --password "" \
                     --entitlements resources/Product.entitlements"""
 
                 sh "wget -O feenk-releaser https://github.com/feenkcom/releaser-rs/releases/latest/download/feenk-releaser-${TARGET}"
