@@ -32,6 +32,7 @@ fn main() {
     security.create_keychain();
     security.add_keychain_to_user_domain();
     security.set_keychain_settings();
+    println!("List_keychains returns: {}", security.list_keychains());
     security.unlock_keychain();
     security.import_keychain();
     security.set_key_partition_list();
