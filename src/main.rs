@@ -36,7 +36,7 @@ fn main() {
     security.unlock_keychain();
     security.import_keychain();
     security.set_key_partition_list();
-
     let mut codesign = Codesign::new(options.singing_identity, options.entitlements);
     codesign.sign(options.app);
+    security.delete_keychain();
 }
