@@ -7,7 +7,7 @@ pub type CertificatePassword = String;
 pub type Keychain = PathBuf;
 pub type KeychainPassword = String;
 
-const KEYCHAIN_NAME: &str = "MyKeychain.keychain";
+pub const KEYCHAIN_NAME: &str = "MyKeychain.keychain";
 const KEYCHAIN_PASSWORD: &str = "temporaryPassword";
 
 pub struct Security {
@@ -160,8 +160,6 @@ impl Security {
             .arg(&self.certificate)
             .arg("-k")
             .arg(&keychain)
-            // .arg("-P")
-            // .arg("")
             .arg("-T")
             .arg("/usr/bin/codesign")
             .status()
@@ -189,5 +187,31 @@ impl Security {
             Err(_) => panic!("Could not list keychains"),
         };
         output
+    }
+
+    //security set-key-partition-list -S apple-tool:,apple: -s -k $MY_KEYCHAIN_PASSWORD -D "$CERT_IDENTITY" -t private $MY_KEYCHAIN # Enable codesigning from a non user interactive shell
+    pub fn set_key_partition_list(&mut self) {
+        let keychain = Self::keychain_file_path();
+
+        if !Command::new("security")
+            .arg("set-key-partition-list")
+            .arg("-S")
+            .arg("apple-tool:,apple:")
+            .arg("-s")
+            .arg("-k")
+            .arg(&self.certificate_password)
+            .arg("-D")
+            .arg(&self.find_identity())
+            .arg("-t")
+            .arg("private")
+            .arg(&keychain)
+            // .arg("-P")
+            // .arg("")
+            .status()
+            .unwrap()
+            .success()
+        {
+            panic!("Could not create a .keychain file");
+        }
     }
 }

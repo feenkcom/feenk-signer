@@ -3,6 +3,7 @@ extern crate clap;
 
 mod options;
 mod security;
+mod codesign;
 
 use std::env;
 use std::fs;
@@ -13,6 +14,8 @@ use crate::options::SignOptions;
 use crate::security::Security;
 use clap::Clap;
 use std::path::Path;
+
+use crate::codesign::Codesign;
 
 
 fn main() {
@@ -31,19 +34,9 @@ fn main() {
     security.set_keychain_settings();
     security.unlock_keychain();
     security.import_keychain();
-    println!("{}", security.find_identity());
-    // let env_variables: [&str; 3] = ["CERT", "MY_KEYCHAIN", "MY_KEYCHAIN_PASSWORD"];
-    //security delete-keychain "$MY_KEYCHAIN" "Delete also initially"
-    // let my_keychain = env::var("MY_KEYCHAIN").unwrap();
+    security.set_key_partition_list();
 
-    // let status = Command::new("security")
-    //     .arg("delete-keychain")
-    //     .arg(&my_keychain)
-    //     .arg("Delete also initially")
-    //     .status()
-    //     .unwrap();
-    //
-    // if !status.success() {
-    //     panic!("Could not delete keychain {}", &my_keychain);
-    // }
+    let mut codesign = Codesign::new(options.singing_identity, options.entitlements);
+    codesign.sign(options.app);
+
 }
