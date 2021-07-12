@@ -1,4 +1,5 @@
 use execute::{command, Execute};
+use std::panic::UnwindSafe;
 use std::path::PathBuf;
 use std::process::{Command, Output, Stdio};
 use std::str;

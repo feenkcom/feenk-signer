@@ -5,6 +5,10 @@ use std::path::PathBuf;
 #[clap(version = "1.0", author = "feenk gmbh <contact@feenk.com>")]
 #[clap(setting = AppSettings::ColoredHelp)]
 pub struct SignOptions {
+    /// A folder (.app) or a file that needs to be signed
+    #[clap(parse(from_os_str))]
+    pub(crate) artefact: PathBuf,
+
     /// Base64 encoded certificate
     #[clap(long, env = "CERT", hide_env_values = true)]
     pub(crate) certificate: String,
@@ -16,10 +20,6 @@ pub struct SignOptions {
     /// Signing identity
     #[clap(long, env = "SIGNING_IDENTITY")]
     pub(crate) singing_identity: String,
-
-    /// The app folder that needs to be signed
-    #[clap(long)]
-    pub(crate) app: String,
 
     ///  File path to .entitlements file
     #[clap(long)]

@@ -27,12 +27,6 @@ pipeline {
                         label "${MACOS_INTEL_TARGET}"
                     }
 
-                    when {
-                        expression {
-                            return false
-                        }
-                    }
-
                     environment {
                         TARGET = "${MACOS_INTEL_TARGET}"
                         PATH = "$HOME/.cargo/bin:/usr/local/bin/:$PATH"
@@ -88,33 +82,33 @@ pipeline {
             }
             steps {
 //              unstash "${LINUX_AMD64_TARGET}"
-//              unstash "${MACOS_INTEL_TARGET}"
+              unstash "${MACOS_INTEL_TARGET}"
                 unstash "${MACOS_M1_TARGET}"
 //              unstash "${WINDOWS_AMD64_TARGET}"
 
 
-//                sh """
-//                cargo run --release -- --app ${TOOL_NAME}-${MACOS_INTEL_TARGET} \
-//                    --singing-identity "Developer ID Application: feenk gmbh (77664ZXL29)" \
-//                    --entitlements resources/Product.entitlements"""
+                sh """
+                cargo run --release -- --app ${TOOL_NAME}-${MACOS_INTEL_TARGET} \
+                    --singing-identity "Developer ID Application: feenk gmbh (77664ZXL29)" \
+                    --entitlements resources/Product.entitlements"""
 
                 sh """
                 cargo run --release -- --app ${TOOL_NAME}-${MACOS_M1_TARGET} \
                     --singing-identity "Developer ID Application: feenk gmbh (77664ZXL29)" \
                     --entitlements resources/Product.entitlements"""
 
-//                sh "wget -O feenk-releaser https://github.com/feenkcom/releaser-rs/releases/latest/download/feenk-releaser-${TARGET}"
-//                sh "chmod +x feenk-releaser"
-//                sh """
-//                ./feenk-releaser \
-//                    --owner feenkcom \
-//                    --repo feenk-signer \
-//                    --token GITHUB_TOKEN \
-//                    --bump-minor \
-//                    --auto-accept \
-//                    --assets \
-//                        ${TOOL_NAME}-${MACOS_INTEL_TARGET} \
-//                        ${TOOL_NAME}-${MACOS_M1_TARGET}  """
+                sh "wget -O feenk-releaser https://github.com/feenkcom/releaser-rs/releases/latest/download/feenk-releaser-${TARGET}"
+                sh "chmod +x feenk-releaser"
+                sh """
+                ./feenk-releaser \
+                    --owner feenkcom \
+                    --repo feenk-signer \
+                    --token GITHUB_TOKEN \
+                    --bump-minor \
+                    --auto-accept \
+                    --assets \
+                        ${TOOL_NAME}-${MACOS_INTEL_TARGET} \
+                        ${TOOL_NAME}-${MACOS_M1_TARGET}  """
 
             }
         }
