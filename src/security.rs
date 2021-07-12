@@ -152,7 +152,7 @@ impl Security {
         );
 
         let mut command = command(format!(
-            "import {} -k {} -P '{}' -T /usr/bin/codesign",
+            "security import {} -k {} -P '{}' -T /usr/bin/codesign",
             &self.certificate.display(),
             Self::keychain_file_path().display(),
             &self
@@ -169,27 +169,27 @@ impl Security {
 
     //security find-identity -v -p codesigning "$MY_KEYCHAIN" | head -1 | grep '"' | sed -e 's/[^"]*"//' -e 's/".*//'
     pub fn find_identity(&mut self) -> String {
-        let keychain = Self::keychain_file_path();
-        let output = match Command::new("security")
-            .arg("find-identity")
-            .arg("-v")
-            .arg("-p")
-            .arg("codesigning")
-            .arg(&keychain)
-            .stdout(Stdio::piped())
-            .output()
-        {
-            Ok(x) => str::from_utf8(x.stdout.as_slice())
-                .unwrap()
-                .to_string()
-                .lines()
-                .next()
-                .unwrap()
-                .to_string()
-                .split_whitespace()
-                .nth(1)
-                .unwrap()
-                .to_string(),
+        let mut command = command(format!(
+            "security find-identity -v -p codesigning {}",
+            Self::keychain_file_path().display(),
+        ));
+        println!("{:?}", &command);
+
+        let output = match command.output() {
+            Ok(x) => {
+                let output = String::from_utf8_lossy(&x.stdout);
+                println!("output = {}", &output);
+                output
+                    .to_string()
+                    .lines()
+                    .next()
+                    .unwrap()
+                    .to_string()
+                    .split_whitespace()
+                    .nth(1)
+                    .unwrap()
+                    .to_string()
+            }
             Err(_) => panic!("Could find identity"),
         };
         output
