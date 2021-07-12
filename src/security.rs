@@ -49,6 +49,7 @@ impl Security {
     /// Ensure that the temporary keychain file is deleted
     pub fn delete_keychain(&mut self) {
         if let Some(ref keychain) = self.keychain {
+            println!("deleting keychain {}", keychain.display().to_string());
             if !Command::new("security")
                 .arg("delete-keychain")
                 .arg(keychain)
