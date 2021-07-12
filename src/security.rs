@@ -7,7 +7,7 @@ pub type CertificatePassword = Option<String>;
 pub type Keychain = PathBuf;
 pub type KeychainPassword = String;
 
-pub const KEYCHAIN_NAME: &str = "MyKeychain.keychain";
+pub const KEYCHAIN_NAME: &str = "MyNewKeychain.keychain";
 const KEYCHAIN_PASSWORD: &str = "temporaryPassword";
 
 pub struct Security {
