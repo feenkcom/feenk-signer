@@ -145,7 +145,7 @@ impl Security {
             .unwrap()
             .success()
         {
-            panic!("Could unlock the keychain");
+            panic!("Could not unlock the keychain");
         }
 
         self.keychain = Some(keychain)
@@ -165,7 +165,7 @@ impl Security {
             .unwrap()
             .success()
         {
-            panic!("Could import the certificate");
+            panic!("Could not import the certificate");
         }
 
         self.keychain = Some(keychain)

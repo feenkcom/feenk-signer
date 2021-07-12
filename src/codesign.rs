@@ -6,7 +6,7 @@ pub struct Codesign {
     signing_identity: String,
     entitlements: String
 }
-pub const KEYCHAIN_NAME: &str = "MyKeychain.keychain";
+pub const KEYCHAIN_NAME: &str = "MyNewKeychain.keychain";
 impl Codesign {
     pub fn new(
         signing_identity: impl Into<String>,
