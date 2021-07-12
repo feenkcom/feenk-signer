@@ -97,7 +97,7 @@ pipeline {
                     --singing-identity "Developer ID Application: feenk gmbh (77664ZXL29)" \
                     --entitlements resources/Product.entitlements"""
 
-                sh "wget -O feenk-releaser https://github.com/feenkcom/releaser-rs/releases/latest/download/feenk-releaser-${TARGET}"
+                sh "curl -o feenk-releaser -LsS  https://github.com/feenkcom/releaser-rs/releases/latest/download/feenk-releaser-${TARGET}"
                 sh "chmod +x feenk-releaser"
                 sh """
                 ./feenk-releaser \
