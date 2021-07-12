@@ -17,7 +17,7 @@ impl Codesign {
 
     pub fn sign(&mut self, file: &Path) {
         let mut command = command(format!(
-            "codesign --entitlements {}  --force -v --options=runtime  --deep --timestamp --file-list - -s {} {}",
+            "codesign --entitlements {}  --force -v --options=runtime  --deep --timestamp --file-list - -s '{}' {}",
             &self.entitlements.display(),
             &self.signing_identity,
             file.display()
