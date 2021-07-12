@@ -156,7 +156,6 @@ impl Security {
 
         if !Command::new("security")
             .arg("import")
-
             .arg(&self.certificate)
             .arg("-k")
             .arg(&keychain)

@@ -66,11 +66,11 @@ pipeline {
 
         stage ('Deployment') {
             agent {
-                label "${MACOS_M1_TARGET}"
+                label "${MACOS_INTEL_TARGET}"
             }
             environment {
-                PATH = "$HOME/.cargo/bin:/opt/homebrew/bin:$PATH"
-                TARGET = "${MACOS_M1_TARGET}"
+                TARGET = "${MACOS_INTEL_TARGET}"
+                PATH = "$HOME/.cargo/bin:/usr/local/bin/:$PATH"
                 CERT = credentials('devcertificate')
                 APPLEPASSWORD = credentials('notarizepassword')
 
