@@ -88,13 +88,11 @@ pipeline {
 
 
                 sh """
-                export CERT_PASSWORD=""
                 cargo run --bin feenk-signer -- --app ${TOOL_NAME}-${MACOS_INTEL_TARGET} \
                     --singing-identity "Developer ID Application: feenk gmbh (77664ZXL29)" \
                     --entitlements resources/Product.entitlements"""
 
                 sh """
-                export CERT_PASSWORD=""
                 cargo run --bin feenk-signer -- --app ${TOOL_NAME}-${MACOS_M1_TARGET} \
                     --singing-identity "Developer ID Application: feenk gmbh (77664ZXL29)" \
                     --entitlements resources/Product.entitlements"""
