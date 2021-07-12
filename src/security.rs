@@ -127,7 +127,7 @@ impl Security {
     //security unlock-keychain -p "$MY_KEYCHAIN_PASSWORD" "$MY_KEYCHAIN" # Unlock keychain
     pub fn unlock_keychain(&mut self) {
         let mut command = command(format!(
-            "security unlock-keychain {} {}",
+            "security unlock-keychain -p {} {}",
             Self::keychain_password(),
             Self::keychain_file_path().display(),
         ));
