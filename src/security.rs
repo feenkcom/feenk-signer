@@ -75,7 +75,7 @@ impl Security {
             .unwrap()
             .success()
         {
-            panic!("Could not create a .keychain file");
+            panic!("Could not create the keychain");
         }
 
         self.keychain = Some(keychain)
@@ -126,7 +126,7 @@ impl Security {
             .unwrap()
             .success()
         {
-            panic!("Could not create a .keychain file");
+            panic!("Could not set keychain settings");
         }
 
         self.keychain = Some(keychain)
@@ -145,7 +145,7 @@ impl Security {
             .unwrap()
             .success()
         {
-            panic!("Could not create a .keychain file");
+            panic!("Could unlock the keychain");
         }
 
         self.keychain = Some(keychain)
@@ -165,7 +165,7 @@ impl Security {
             .unwrap()
             .success()
         {
-            panic!("Could not create a .keychain file");
+            panic!("Could import the certificate");
         }
 
         self.keychain = Some(keychain)
@@ -183,7 +183,7 @@ impl Security {
             .stdout(Stdio::piped())
             .output() {
             Ok(x) => str::from_utf8(x.stdout.as_slice()).unwrap().to_string().lines().next().unwrap().to_string().split_whitespace().nth(1).unwrap().to_string(),
-            Err(_) => panic!("Could not list keychains"),
+            Err(_) => panic!("Could find identity"),
         };
         output
     }
@@ -210,7 +210,7 @@ impl Security {
             .unwrap()
             .success()
         {
-            panic!("Could not create a .keychain file");
+            panic!("Could not set key partition list");
         }
     }
 }
