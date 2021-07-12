@@ -14,6 +14,7 @@ use crate::security::Security;
 use clap::Clap;
 use std::path::Path;
 
+
 fn main() {
     let options: SignOptions = SignOptions::parse();
 
@@ -26,8 +27,11 @@ fn main() {
     let mut security = Security::new(&certificate, options.password);
     security.delete_keychain();
     security.create_keychain();
-
-
+    security.add_keychain_to_user_domain();
+    security.set_keychain_settings();
+    security.unlock_keychain();
+    security.import_keychain();
+    println!("{}", security.find_identity());
     // let env_variables: [&str; 3] = ["CERT", "MY_KEYCHAIN", "MY_KEYCHAIN_PASSWORD"];
     //security delete-keychain "$MY_KEYCHAIN" "Delete also initially"
     // let my_keychain = env::var("MY_KEYCHAIN").unwrap();
