@@ -97,7 +97,7 @@ pipeline {
                     --owner feenkcom \
                     --repo feenk-signer \
                     --token GITHUB_TOKEN \
-                    --bump-minor \
+                    --bump minor \
                     --auto-accept \
                     --assets \
                         ${TOOL_NAME}-${MACOS_INTEL_TARGET} \
