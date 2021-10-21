@@ -72,7 +72,7 @@ pipeline {
                 TARGET = "${MACOS_M1_TARGET}"
                 PATH = "$HOME/.cargo/bin:/usr/local/bin/:$PATH"
                 CERT = credentials('devcertificate')
-                APPLEPASSWORD = credentials('notarizepassword')
+                APPLEPASSWORD = credentials('notarizepassword-manager')
 
             }
             when {
