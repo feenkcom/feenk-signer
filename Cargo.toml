@@ -1,14 +1,14 @@
 [package]
 name = "feenk-signer"
-version = "0.1.0"
-edition = "2018"
+version = "0.2.0"
+edition = "2021"
 
 [[bin]]
 name = "feenk-signer"
 path = "src/main.rs"
 
 [dependencies]
-clap = "3.0.0-beta.2"
-base64 = "0.13.0"
-execute = "0.2.9"
-rand = "0.8.4"
+clap = { version = "4.1", features = [ "derive", "env" ] }
+execute = "0.2"
+rand = "0.8"
+ndk-build = "0.9"

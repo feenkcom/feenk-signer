@@ -1,36 +1,57 @@
-use clap::{AppSettings, Clap};
-use rand::Rng;
 use std::path::{Path, PathBuf};
 
+use clap::Args;
+use rand::Rng;
+
+use crate::macos::{Codesign, Security};
+
 const FEENK_SIGNING_IDENTITY: &str = "Developer ID Application: feenk gmbh (77664ZXL29)";
-const FEENK_ENTITLEMENTS: &str = include_str!("../resources/Product.entitlements");
+const FEENK_ENTITLEMENTS: &str = include_str!("../../resources/Product.entitlements");
 
-#[derive(Clap, Clone, Debug, Default)]
-#[clap(version = "1.0", author = "feenk gmbh <contact@feenk.com>")]
-#[clap(setting = AppSettings::ColoredHelp)]
-pub struct SignOptions {
-    /// A folder (.app) or a file that needs to be signed
-    #[clap(parse(from_os_str))]
-    pub(crate) artefact: PathBuf,
-
-    /// Base64 encoded certificate
-    #[clap(long, env = "CERT", hide_env_values = true)]
-    pub(crate) certificate: String,
-
-    /// Certificate password
-    #[clap(long, env = "CERT_PASSWORD", hide_env_values = true)]
-    pub(crate) password: Option<String>,
+#[derive(Args, Debug, Clone)]
+pub struct MacSigner {
+    /// A folder (.app) or a .zip file that needs to be signed
+    artefact: PathBuf,
 
     /// Signing identity
     #[clap(long, env = "SIGNING_IDENTITY", hide_env_values = true)]
     singing_identity: Option<String>,
 
     ///  File path to .entitlements file
-    #[clap(long, parse(from_os_str))]
+    #[clap(long)]
     entitlements: Option<PathBuf>,
+
+    /// Path to .p12 certificate
+    #[clap(long, env = "CERT", hide_env_values = true)]
+    certificate: PathBuf,
+
+    /// Certificate password
+    #[clap(long, env = "CERT_PASSWORD", hide_env_values = true)]
+    password: Option<String>,
 }
 
-impl SignOptions {
+impl MacSigner {
+    pub fn sign(&self) {
+        let mut security = Security::new(&self.certificate, self.password.clone());
+
+        security.delete_keychain();
+        security.create_keychain();
+
+        security.add_keychain_to_user_domain();
+        security.set_keychain_settings();
+        security.unlock_keychain();
+        security.import_keychain();
+
+        security.set_key_partition_list();
+
+        self.with_signing_identity_and_entitlements(|signing_identity, entitlements| {
+            let codesign = Codesign::new(signing_identity, entitlements);
+            codesign.sign(self.artefact.as_path());
+        });
+
+        security.delete_keychain();
+    }
+
     fn singing_identity(&self) -> &str {
         self.singing_identity
             .as_ref()

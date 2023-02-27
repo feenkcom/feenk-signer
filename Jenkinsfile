@@ -4,22 +4,36 @@ import hudson.tasks.junit.CaseResult
 
 pipeline {
     agent none
+    parameters {
+        choice(name: 'BUMP', choices: ['minor', 'patch', 'major'], description: 'What to bump when releasing') }
     options {
         buildDiscarder(logRotator(numToKeepStr: '50'))
         disableConcurrentBuilds()
     }
     environment {
         GITHUB_TOKEN = credentials('githubrelease')
-        AWSIP = 'ec2-18-197-145-81.eu-central-1.compute.amazonaws.com'
 
         TOOL_NAME = 'feenk-signer'
+
         MACOS_INTEL_TARGET = 'x86_64-apple-darwin'
         MACOS_M1_TARGET = 'aarch64-apple-darwin'
-        WINDOWS_AMD64_TARGET = 'x86_64-pc-windows-msvc'
-        LINUX_AMD64_TARGET = 'x86_64-unknown-linux-gnu'
     }
 
     stages {
+        stage ('Read tool versions') {
+            agent {
+                label "${MACOS_M1_TARGET}"
+            }
+            steps {
+                script {
+                    FEENK_RELEASER_VERSION = sh (
+                            script: "cat feenk-releaser.version",
+                            returnStdout: true
+                    ).trim()
+                }
+                echo "Will release using feenk-releaser ${FEENK_RELEASER_VERSION}"
+            }
+        }
         stage ('Parallel build') {
             parallel {
                 stage ('MacOS x86_64') {
@@ -71,9 +85,6 @@ pipeline {
             environment {
                 TARGET = "${MACOS_M1_TARGET}"
                 PATH = "$HOME/.cargo/bin:/usr/local/bin/:$PATH"
-                CERT = credentials('devcertificate')
-                APPLEPASSWORD = credentials('notarizepassword-manager')
-
             }
             when {
                 expression {
@@ -81,23 +92,26 @@ pipeline {
                 }
             }
             steps {
-//              unstash "${LINUX_AMD64_TARGET}"
-              unstash "${MACOS_INTEL_TARGET}"
+                unstash "${MACOS_INTEL_TARGET}"
                 unstash "${MACOS_M1_TARGET}"
-//              unstash "${WINDOWS_AMD64_TARGET}"
 
+                withCre
 
-                sh "cargo run --release -- ${TOOL_NAME}-${MACOS_INTEL_TARGET}"
-                sh "cargo run --release -- ${TOOL_NAME}-${MACOS_M1_TARGET} "
+                withCredentials([file(credentialsId: 'feenk-apple-developer-certificate', variable: 'CERT')]) {
+                    // sign both apps
+                    sh "cargo run --release -- mac ${TOOL_NAME}-${MACOS_INTEL_TARGET}"
+                    sh "cargo run --release -- mac ${TOOL_NAME}-${MACOS_M1_TARGET} "
+                }
 
-                sh "curl -o feenk-releaser -LsS  https://github.com/feenkcom/releaser-rs/releases/latest/download/feenk-releaser-${TARGET}"
+                sh "curl -o feenk-releaser -LsS  https://github.com/feenkcom/releaser-rs/releases/download/${FEENK_RELEASER_VERSION}/feenk-releaser-${TARGET}"
                 sh "chmod +x feenk-releaser"
                 sh """
                 ./feenk-releaser \
                     --owner feenkcom \
                     --repo feenk-signer \
                     --token GITHUB_TOKEN \
-                    --bump minor \
+                    release \
+                    --bump ${params.BUMP} \
                     --auto-accept \
                     --assets \
                         ${TOOL_NAME}-${MACOS_INTEL_TARGET} \
