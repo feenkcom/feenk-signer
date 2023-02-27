@@ -95,8 +95,6 @@ pipeline {
                 unstash "${MACOS_INTEL_TARGET}"
                 unstash "${MACOS_M1_TARGET}"
 
-                withCre
-
                 withCredentials([file(credentialsId: 'feenk-apple-developer-certificate', variable: 'CERT')]) {
                     // sign both apps
                     sh "cargo run --release -- mac ${TOOL_NAME}-${MACOS_INTEL_TARGET}"
