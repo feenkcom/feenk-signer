@@ -134,7 +134,7 @@ impl Security {
             panic!("Could not unlock the keychain");
         }
     }
-    //security import $CERT -k "$MY_KEYCHAIN" -P "$CERT_PASSWORD" -T "/usr/bin/codesign" # Add certificate to keychain
+    //security import $CERT -k "$MY_KEYCHAIN" -t agg -f pkcs12 -P "$CERT_PASSWORD" -T "/usr/bin/codesign" # Add certificate to keychain
     pub fn import_keychain(&mut self) {
         let keychain = Self::keychain_file_path();
 
@@ -149,8 +149,14 @@ impl Security {
             &self.certificate.display()
         );
 
+        // `certificate` is always a decoded .p12 file (see the `Security::certificate` doc
+        // comment), so explicitly pass its item type ("agg", since a .p12 aggregates a cert
+        // and a private key) and format ("pkcs12"). Without these, `security import` falls
+        // back to guessing from the file's name/extension, which fails with
+        // "SecKeychainItemImport: Unknown format in import" when the input path has no
+        // recognizable extension (e.g. Jenkins' credentials-binding temp files).
         let mut command = command(format!(
-            "security import {} -k {} -P '{}' -T /usr/bin/codesign",
+            "security import {} -k {} -t agg -f pkcs12 -P '{}' -T /usr/bin/codesign",
             &self.certificate.display(),
             Self::keychain_file_path().display(),
             &self
