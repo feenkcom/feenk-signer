@@ -52,7 +52,6 @@ pipeline {
                         sh 'echo "machine SDK/toolchain"'
                         sh 'sw_vers'
                         sh 'xcrun --show-sdk-version'
-                        sh 'xcodebuild -version'
 
                         sh "cargo build --bin ${TOOL_NAME} --release"
 
@@ -82,7 +81,6 @@ pipeline {
                         sh 'echo "machine SDK/toolchain"'
                         sh 'sw_vers'
                         sh 'xcrun --show-sdk-version'
-                        sh 'xcodebuild -version'
 
                         sh "cargo build --bin ${TOOL_NAME} --release"
 
