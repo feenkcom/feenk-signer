@@ -69,6 +69,12 @@ pipeline {
                     environment {
                         TARGET = "${MACOS_M1_TARGET}"
                         PATH = "$HOME/.cargo/bin:/opt/homebrew/bin:$PATH"
+                        // Pin the SDK instead of using this node's default (currently 13.1). A
+                        // binary's hardened-runtime "Runtime Version" is read from the SDK it was
+                        // built against, and a binary built against a newer SDK than an execution
+                        // node's own macOS gets killed at exec time ("Killed: 9"). 11.3 matches
+                        // the last release confirmed to run cleanly everywhere.
+                        SDKROOT = "/Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk"
                     }
 
                     steps {
@@ -96,6 +102,10 @@ pipeline {
             environment {
                 TARGET = "${MACOS_M1_TARGET}"
                 PATH = "$HOME/.cargo/bin:/usr/local/bin/:$PATH"
+                // See the "MacOS M1" build stage above: "cargo run --release -- mac ..." below
+                // rebuilds feenk-signer from source to self-sign the release assets, so it needs
+                // the same SDK pin or the self-signing step re-embeds the node's default (13.1).
+                SDKROOT = "/Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk"
             }
             when {
                 expression {
